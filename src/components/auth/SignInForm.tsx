@@ -7,6 +7,7 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/client_auth";
 
 export default function SignInForm(props: {
   isSignIn?: boolean
@@ -17,8 +18,29 @@ export default function SignInForm(props: {
     return;
   }
 
+  const [signInObj, setSignInObj] = useState({
+    email: '',
+    password: '',
+    rememberMe: false
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+
+  const signIn = async () => {
+    const { data, error } = await authClient.signIn.email({
+      email: signInObj.email,
+      password: signInObj.password,
+    }, {
+      onError: ctx => {
+        alert(ctx.error.message);
+      },
+      onSuccess: ctx => {
+        router.push('/');
+      }
+    })
+  }
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -99,7 +121,7 @@ export default function SignInForm(props: {
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  <Input placeholder="info@gmail.com" type="email" onChange={e => setSignInObj(pre => ({ ...pre, email: e.target.value }))} />
                 </div>
                 <div>
                   <Label>
@@ -109,6 +131,7 @@ export default function SignInForm(props: {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      onChange={e => setSignInObj(pre => ({ ...pre, password: e.target.value }))}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -137,7 +160,7 @@ export default function SignInForm(props: {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
+                  <Button className="w-full" size="sm" onClick={signIn}>
                     Sign in
                   </Button>
                 </div>
