@@ -1,5 +1,7 @@
 import SignUpForm from "@/components/auth/SignUpForm";
 import { Metadata } from "next";
+import { auth } from "@/auth";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Next.js SignUp Page | TailAdmin - Next.js Dashboard Template",
@@ -7,6 +9,10 @@ export const metadata: Metadata = {
   // other metadata
 };
 
-export default function SignUp() {
-  return <SignUpForm />;
+export default async function SignUp() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  return <SignUpForm isSignIn={session != null} />;
 }

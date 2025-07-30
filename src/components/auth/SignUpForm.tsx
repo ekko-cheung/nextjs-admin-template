@@ -5,10 +5,51 @@ import Label from "@/components/form/Label";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
+import { authClient } from "@/client_auth";
+import { useRouter } from "next/navigation";
 
-export default function SignUpForm() {
+export default function SignUpForm(props: {
+  isSignIn?: boolean
+}) {
+  const router = useRouter();
+
+  if (props.isSignIn) {
+    router.push('/');
+    return;
+  }
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [signUpObj, setSignUpObj] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password:''
+  });
+
+  const signUpEmailAndPass = async () => {
+    if (!isChecked) {
+      // Todo
+      alert('please checked');
+      return;
+    }
+
+    const { data, error } = await authClient.signUp.email({
+      email: signUpObj.email,
+      password: signUpObj.password,
+      name: signUpObj.firstName+"."+signUpObj.lastName,
+    }, {
+      onSuccess: ctx => {
+        router.push('/');
+      },
+      onError: ctx => {
+        alert(ctx.error.message);
+      }
+    })
+  }
+
+
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -96,6 +137,7 @@ export default function SignUpForm() {
                       id="fname"
                       name="fname"
                       placeholder="Enter your first name"
+                      onChange={e => setSignUpObj(pre => ({ ...pre, firstName: e.target.value }))}
                     />
                   </div>
                   {/* <!-- Last Name --> */}
@@ -108,6 +150,7 @@ export default function SignUpForm() {
                       id="lname"
                       name="lname"
                       placeholder="Enter your last name"
+                      onChange={e => setSignUpObj(pre => ({ ...pre, lastName: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -121,6 +164,7 @@ export default function SignUpForm() {
                     id="email"
                     name="email"
                     placeholder="Enter your email"
+                    onChange={e => setSignUpObj(pre => ({ ...pre, email: e.target.value }))}
                   />
                 </div>
                 {/* <!-- Password --> */}
@@ -132,6 +176,7 @@ export default function SignUpForm() {
                     <Input
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
+                      onChange={e => setSignUpObj(pre => ({ ...pre, password: e.target.value }))}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -165,7 +210,10 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                  <button 
+                  type='button' 
+                  className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                  onClick={signUpEmailAndPass}>
                     Sign Up
                   </button>
                 </div>

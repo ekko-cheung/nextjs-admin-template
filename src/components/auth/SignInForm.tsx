@@ -6,8 +6,17 @@ import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function SignInForm() {
+export default function SignInForm(props: {
+  isSignIn?: boolean
+}) {
+  const router = useRouter();
+  if (props.isSignIn) {
+    router.push('/');
+    return;
+  }
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
